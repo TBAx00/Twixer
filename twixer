@@ -236,4 +236,4 @@ def S_I():
             time.sleep(0.01)
     starter()
 if moudles == True:S_I()
-else:print("Please install All modules")
+else:print("Please install All modules\npip install <module name>")
