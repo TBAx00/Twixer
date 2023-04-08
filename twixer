@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+moudles = True
+try:
+    import requests
+except ImportError:
+    moudles = False
+    print("The requests module is NOT installed")
+try:
+    import os
+except ImportError:
+    moudles = False
+    print("The os module is NOT installed")
+try:
+    import sys
+except ImportError:
+    moudles = False
+    print("The sys module is NOT installed")
+try:
+    import time
+except ImportError:
+    moudles = False
+    print("The time module is NOT installed")
+try:
+    from threading import Thread
+except ImportError:
+    moudles = False
+    print("The threading module is NOT installed")
+try:
+    from datetime import datetime
+except ImportError:
+    moudles = False
+    print("The datetime module is NOT installed")
+try:
+    from colorama import Fore
+except ImportError:
+    moudles = False
+    print("The colorama module is NOT installed")
+
+
+silent = False
+n = sys.argv
+saving = []
+
+
+def saver():
+
+    now = datetime.now()
+    filename = now.strftime("save-%d-%m-%Y-%H-%M-%S.txt")
+    file = open(os.path.join(os.getcwd(), filename),"w")
+
+    for k in range(len(saving)):
+        file.write(saving[k]+"\n")
+
+    print(f"{Fore.GREEN}Saved in {filename}{Fore.WHITE}")
+
+def check_api():
+
+    if os.path.exists("api_key.txt"):
+        with open("api_key.txt", "r") as f:
+            api_key = f.read().strip()
+    else:
+        api_key = input("Please enter your API key: ")
+        with open("api_key.txt", "w") as f:
+            f.write(api_key)
+    print("API key:", api_key)
+    return api_key
+def subs():
+    api = check_api()
+    domain = n[2]
+    count = 0
+    url = f"https://api.securitytrails.com/v1/domain/{domain}/subdomains"
+    headers = {
+        'APIKEY': api,
+        'Accept': 'application/json'
+            }
+    response = requests.get(url, headers=headers)
+
+    print(f"Started : {domain}\n")
+    
+    if response.status_code == 200:
+
+        data = response.json()
+
+        with open(os.path.join(os.getcwd(), f"{domain}_subs.txt"),"w") as file:
+            for p in data["subdomains"]:
+
+                count +=1
+
+                if len(n) > 4:
+                    if n[4] != "-silent":
+
+                        print(f"{p}.{domain}")
+
+                file.write(f"{p}.{domain}\n")
+                
+            print(f"{domain} : {count} Subdomains\nSaved in : {domain}_subs.txt")
+
+    else:
+        print('Error:', response.status_code)
+
+def check_website(url):
+
+    try:
+
+        r = requests.get(url,timeout=20)
+
+        if r.status_code == 200:
+
+            saving.append(url)
+
+            if silent == False:
+                print(Fore.GREEN + url + " is available"+Fore.WHITE)
+                
+        else:
+
+            if silent == False:
+                print(Fore.RED + url + " is not available"+Fore.WHITE)
+    except requests.exceptions.RequestException as e:
+
+        if silent == False:
+                print(Fore.RED + url + " is not available" + Fore.WHITE)
+
+
+def read_domains(filename):
+
+    count = 0
+    thread_c = 10
+    thread_now = 0
+
+    with open(filename, "r") as file:
+
+        domains = file.readlines()
+        threads = []
+
+        for domain in domains:
+            count +=1
+            thread_now+=1
+
+            domain = domain.strip()
+
+            thread = Thread(target=check_website, args=(f"http://{domain}",))
+
+            threads.append(thread)
+            thread.start()
+
+            if thread_now == thread_c:
+                thread_now = 0
+                time.sleep(1)
+            
+        for thread in threads:
+            thread.join()
+
+    saver()
+
+    print(f"\nOnline : {len(saving)} Domains\n")
+
+def starter():
+    h = Fore.GREEN+"""
+    Usage :
+            -d <domain> -s => Grab all Subdomains
+            -d <domain> -s -silent => Grab all Subdomains & dont show result
+            -c -f <urls/domains file path> => Check all urls and save online urls 
+            """ + Fore.WHITE
+    if len(n) > 2:
+
+        if n[1] == "-h":
+            print(h)
+
+        if n[1] == "-d":
+
+            if len(n) > 2:
+
+                if n[3] == "-s":
+                    subs()
+
+        if n[1] == "-c":
+
+            if n[2] == "-f":
+
+                if __name__ == "__main__":
+                    read_domains(n[3])
+    else:
+
+        for char in f'{Fore.GREEN}                         Help : python twixer -h                        \n{Fore.WHITE}':
+
+            sys.stdout.write(char)
+            sys.stdout.flush()
+
+            if char != " ":
+                time.sleep(0.01)
+
+# Function to check if a website is available or not
+def S_I():
+    for char in 'Starting':
+        if char != " " or char != "\r":
+            time.sleep(0.05)
+        sys.stdout.write(char)
+        sys.stdout.flush()
+    for m in range(2):
+        sys.stdout.write('\rStarting |')
+        time.sleep(0.2)
+        sys.stdout.write('\rStarting /')
+        time.sleep(0.2)
+        sys.stdout.write('\rStarting -')
+        time.sleep(0.2)
+        sys.stdout.write('\rStarting \\')
+        time.sleep(0.2)
+    TBA = Fore.CYAN + """             .....               ...     ..           ..              
+          .H8888888h.  ~-.    .=*8888x <"?88h.     :**888H: `: .xH""  
+          888888888888x  `>  X>  '8888H> '8888    X   `8888k XX888    
+         X~     `?888888hx~ '88h. `8888   8888   '8hx  48888 ?8888    
+         '      x8.^"*88*"  '8888 '8888    "88>  '8888 '8888 `8888    
+          `-:- X8888x        `888 '8888.xH888x.   %888>'8888  8888    
+               488888>         X" :88*~  `*8888>    "8 '888"  8888    
+             .. `"88*        ~"   !"`      "888>   .-` X*"    8888    
+           x88888nX"      .   .H8888h.      ?88      .xhx.    8888    
+          !"*8888888n..  :   :"^"88888h.    '!     .H88888h.~`8888.>  
+         '    "*88888888*    ^    "88888hx.+"     .~  `%88!` '888*~   
+                 ^"***"`            ^"**""              `"     ""     
+"""
+    tn = Fore.CYAN + """
+                                      d8,                         
+                d8P                  `8P                          
+             d888888P                                             
+               ?88'   ?88   d8P  d8P  88b?88,  88P d8888b  88bd88b
+               88P    d88  d8P' d8P'  88P `?8bd8P'd8b_,dP  88P'  `
+               88b    ?8b ,88b ,88'  d88  d8P?8b, 88b     d88     
+               `?8b   `?888P'888P'  d88' d8P' `?8b`?888P'd88'     """
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(TBA,tn)
+    for char in f"{Fore.MAGENTA}              INSTAGRAM : 0nlytammar | Twitter : TA2Sec               \n{Fore.WHITE}":
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        if char != " ":
+            time.sleep(0.01)
+    starter()
+if moudles == True:S_I()
+else:print("Please install All modules")
