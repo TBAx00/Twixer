@@ -137,9 +137,10 @@ def read_domains(filename):
             thread_now+=1
 
             domain = domain.strip()
-
-            thread = Thread(target=check_website, args=(f"http://{domain}",))
-
+            if domain.startswith("http"):
+                thread = Thread(target=check_website, args=({domain},))
+            else:
+                thread = Thread(target=check_website, args=(f"http://{domain}",))
             threads.append(thread)
             thread.start()
 
@@ -161,7 +162,7 @@ def starter():
             -d <domain> -s -silent => Grab all Subdomains & dont show result
             -c -f <urls/domains file path> => Check all urls and save online urls 
             """ + Fore.WHITE
-    if len(n) > 2:
+    if len(n) > 1:
 
         if n[1] == "-h":
             print(h)
