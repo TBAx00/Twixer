@@ -1,9 +1,14 @@
 # Twixer
 Twixer tool for get subdomains and check urls activity
 
-# installation
+# installation & Setup
 
 ```bash
+# installation :
+# git
+$ git clone https://github.com/TBAx00/Twixer.git
+
+# Setup :
 # Linux
 $ cd Twixer
 $ chmod -x twixer
